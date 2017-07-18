@@ -18,3 +18,7 @@
   display: flex;
   flex-wrap: wrap;
 }
+
+.error-message {
+  padding-top:10px;
+}
