@@ -1,3 +1,3 @@
 module.exports = {
-  API_HOST: 'https://movie-list-server.herokuapp.com'
+  API_HOST: process.env.HOST
 }
