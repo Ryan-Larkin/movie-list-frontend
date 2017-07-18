@@ -11,7 +11,8 @@ class App extends Component {
     super();
 
     this.state = {
-      movies: []
+      movies: [],
+      error: null
     }
   }
 
@@ -37,6 +38,12 @@ class App extends Component {
   }
 
   handleTyping = (e) => {
+    if(this.state.error) {
+      this.setState({
+        error : null
+      });
+    }
+
     if (e.keyCode === ENTER) {
       this.addNewMovie();
       this.refs.newMovie.value = "";
@@ -46,8 +53,15 @@ class App extends Component {
   addNewMovie = () => {
     let { newMovie: {value: newMovie} } = this.refs;
 
-    api.addMovie(newMovie)
-    .then(this.fetchMovies);
+    if (newMovie) {
+      api.addMovie(newMovie)
+      .then(this.fetchMovies);
+    }
+    else {
+      this.setState({
+        error : 'Please enter a movie name.'
+      })
+    }
   }
 
   render() {
@@ -66,6 +80,8 @@ class App extends Component {
             <input type="text" ref="newMovie" onKeyUp={this.handleTyping}/>
             <button onClick={this.addNewMovie}>Add Movie</button>
           </div>
+
+          {this.state.error ? <p className="alert alert-danger">{this.state.error}</p> : null}
 
           <hr />
 
