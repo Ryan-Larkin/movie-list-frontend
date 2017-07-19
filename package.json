@@ -6,6 +6,7 @@
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-onclickoutside": "^6.4.0",
+    "react-toastify": "^1.7.0",
     "superagent": "^3.5.2"
   },
   "devDependencies": {
