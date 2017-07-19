@@ -109,7 +109,6 @@ class App extends Component {
 
   getRandomMovie = () => {
     if(this.state.movies && this.state.movies.length > 0) {
-      console.log(this.state.randomizedIndex)
       this.setState({
         randomizedIndex : Math.floor(Math.random() * this.state.movies.length)
       });
