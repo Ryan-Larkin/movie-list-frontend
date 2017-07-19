@@ -18,7 +18,7 @@ class MovieItem extends React.Component {
     this.setState({showMovieModal : true});
   }
 
-  closeModal = () => this.setState({ showMovieModal : false })
+  closeModal = () => this.setState({showMovieModal : false});
 
   render() {
 

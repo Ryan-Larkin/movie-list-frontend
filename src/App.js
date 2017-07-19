@@ -12,12 +12,22 @@ const MOVIE_URL  = 'https://api.themoviedb.org/3/search/movie';
 
 const ENTER = 13;
 
+const toastOptions = {
+  autoClose :3000,
+  closeButton: false,
+  hideProgressBar: true,
+  position : toast.POSITION.BOTTOM_CENTER
+};
+
+const ToastMsg = ({ displayStr }) => <div className="toast-text">{displayStr}</div>
+
 class App extends Component {
   constructor() {
     super();
 
     this.state = {
-      movies: []
+      movies          : [],
+      randomizedIndex : null
     }
   }
 
@@ -68,15 +78,6 @@ class App extends Component {
   addNewMovie = () => {
     let { newMovie: {value: newMovie} } = this.refs;
 
-    const toastOptions = {
-      autoClose :3000,
-      closeButton: false,
-      hideProgressBar: true,
-      position : toast.POSITION.BOTTOM_CENTER
-    };
-
-    const ToastMsg = ({ displayStr }) => <div className="toast-text">{displayStr}</div>
-
     if (newMovie) {
       this.findMovie(newMovie)
       .then(movieInfo => {
@@ -106,6 +107,27 @@ class App extends Component {
     }
   }
 
+  getRandomMovie = () => {
+    if(this.state.movies && this.state.movies.length > 0) {
+      console.log(this.state.randomizedIndex)
+      this.setState({
+        randomizedIndex : Math.floor(Math.random() * this.state.movies.length)
+      });
+    }
+    else {
+      toast.error(<ToastMsg displayStr='There are no movies in your list.' />, toastOptions);
+    }
+  }
+
+  showAll = () => {
+    // for some reason, if I use just (this.state.randomizedIndex), it doesn't always work
+    if(this.state.randomizedIndex != null) {
+      this.setState({
+        randomizedIndex : null
+      });
+    }
+  }
+
   render() {
     let { movies } = this.state;
 
@@ -123,13 +145,27 @@ class App extends Component {
             <button onClick={this.addNewMovie}>Add Movie</button>
           </div>
 
+          <div className="randomizing-btns">
+            <button onClick={this.getRandomMovie}>Get Random Movie</button>
+            <button onClick={this.showAll}>Show All Movies</button>
+          </div>
+
           <ToastContainer />
 
           <hr />
 
           <div className="movie-list">
             {
-              movies.map(m => (
+              ( this.state.randomizedIndex != null )
+              ? <MovieItem
+                  key={movies[this.state.randomizedIndex]._id}
+                  id={movies[this.state.randomizedIndex]._id}
+                  title={movies[this.state.randomizedIndex].title}
+                  poster={movies[this.state.randomizedIndex].poster}
+                  overview={movies[this.state.randomizedIndex].overview}
+                  updateMovies={this.fetchMovies}
+                />
+              : movies.map(m => (
                 <MovieItem
                   key={m._id}
                   id={m._id}

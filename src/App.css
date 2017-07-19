@@ -24,3 +24,13 @@
 .toast-text {
   font-size:1.5em;
 }
+
+.randomizing-btns {
+  text-align:center;
+  margin-top: 15px;
+}
+
+.randomizing-btns > button {
+  margin-left:3px;
+  margin-right:3px;
+}
