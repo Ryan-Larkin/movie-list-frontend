@@ -18,3 +18,16 @@
   z-index:9998;
   background: rgba(0,0,0,0.7);
 }
+
+.poster-img {
+  user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.poster-img:hover {
+  cursor:pointer;
+}

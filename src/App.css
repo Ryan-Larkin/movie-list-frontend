@@ -17,8 +17,10 @@
 .movie-list {
   display: flex;
   flex-wrap: wrap;
+  margin-right:10px;
+  margin-left:10px;
 }
 
-.error-message {
-  padding-top:10px;
+.toast-text {
+  font-size:1.5em;
 }

@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import './App.css';
 import MovieItem from './MovieItem';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
+
 import api from './api/api';
 
 const MOVIE_API_KEY = 'd44d485616fe9ed89eb714a25e6b56d7';
@@ -14,8 +17,7 @@ class App extends Component {
     super();
 
     this.state = {
-      movies: [],
-      error: null
+      movies: []
     }
   }
 
@@ -41,12 +43,6 @@ class App extends Component {
   }
 
   handleTyping = (e) => {
-    if(this.state.error) {
-      this.setState({
-        error : null
-      });
-    }
-
     if (e.keyCode === ENTER) {
       this.addNewMovie();
       this.refs.newMovie.value = "";
@@ -72,33 +68,46 @@ class App extends Component {
   addNewMovie = () => {
     let { newMovie: {value: newMovie} } = this.refs;
 
+    const toastOptions = {
+      autoClose :3000,
+      closeButton: false,
+      hideProgressBar: true,
+      position : toast.POSITION.BOTTOM_CENTER
+    };
+
+    const ToastMsg = ({ displayStr }) => <div className="toast-text">{displayStr}</div>
+
     if (newMovie) {
       this.findMovie(newMovie)
       .then(movieInfo => {
         if (movieInfo) {
           api.addMovie(movieInfo)
-          .then(this.fetchMovies);
+          .then(res => {
+            if (res.body.wasFound) {
+              toast.error(<ToastMsg displayStr={`${res.body.title} is already added.`} />, toastOptions);
+            }
+            else {
+              toast.success(<ToastMsg displayStr={`${movieInfo.title} was succesfully added.`} />, toastOptions);
+              this.fetchMovies();
+            }
+          });
+
+          this.refs.newMovie.value = "";
+
+
         }
         else {
-          this.setState({
-            error : `"${newMovie}" could not be found.`
-          });
+          toast.error(<ToastMsg displayStr={`${newMovie} could not be found.`} />, toastOptions);
         }
       });
     }
     else {
-      this.setState({
-        error : 'Please enter a movie name.'
-      })
+      toast.error(<ToastMsg displayStr='Please enter a movie name.' />, toastOptions);
     }
   }
 
   render() {
     let { movies } = this.state;
-
-    const errorMsgDisplay = {
-      visibility: this.state.error ? 'visible' : 'hidden'
-    }
 
     return (
       <div className="App">
@@ -112,11 +121,9 @@ class App extends Component {
           <div className="movie-input">
             <input type="text" ref="newMovie" onKeyUp={this.handleTyping} />
             <button onClick={this.addNewMovie}>Add Movie</button>
-            <p className="error-message" style={errorMsgDisplay}>{this.state.error}</p>
           </div>
 
-
-
+          <ToastContainer />
 
           <hr />
 

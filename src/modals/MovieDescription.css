@@ -57,3 +57,12 @@
   font-weight:bold;
   border-bottom:1px solid black;
 }
+
+.description-img {
+  user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}

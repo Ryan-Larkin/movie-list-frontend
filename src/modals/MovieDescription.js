@@ -18,6 +18,7 @@ export default onClickOutside(class MovieDescription extends React.Component {
 
   deleteThisMovie = () => {
     this.props.closeModal();
+
     api.deleteMovie(this.props.id)
     .then(this.props.updateMovies);
   }
@@ -31,7 +32,7 @@ export default onClickOutside(class MovieDescription extends React.Component {
 
         <div className="movie-description-info">
           <div className="movie-description-modal-left">
-            <img src={`${MOVIE_POSTER_300}${this.props.poster}`} alt="Poster Not Found" />
+            <img className="description-img"  src={`${MOVIE_POSTER_300}${this.props.poster}`} alt="Poster Not Found" />
           </div>
 
           <div className="movie-description-modal-right">

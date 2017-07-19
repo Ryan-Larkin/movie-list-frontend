@@ -1,17 +1,5 @@
-/*@font-face {
-  font-family: circularBook;
-  src: url(fonts/3MCircularTT-Book.ttf);
-}
-
-@font-face {
-  font-family: circularBold;
-  src: url(fonts/3MCircularTT-Bold.ttf);
-  font-weight: bold;
-}*/
-
 body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
-  /*font-family: circularBook, Helvetica, sans-serif;*/
 }

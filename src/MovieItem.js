@@ -21,10 +21,11 @@ class MovieItem extends React.Component {
   closeModal = () => this.setState({ showMovieModal : false })
 
   render() {
+
     return (
       <div className="movie-item" onClick={this.showModal}>
         {this.props.poster
-          ? <img src={`${MOVIE_POSTER_154}${this.props.poster}`}alt="No poster found" />
+          ? <img className="poster-img" src={`${MOVIE_POSTER_154}${this.props.poster}`} alt="No poster found" />
           : null
         }
 
