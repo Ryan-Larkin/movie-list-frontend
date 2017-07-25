@@ -8,10 +8,10 @@ class Api {
     .catch(err => console.error(err))
   )
 
-  addMovie = ({title: movieTitle, poster: moviePoster, overview: movieOverview}) => (
+  addMovie = ({apiID, title, poster, overview}) => (
     superagent
     .post(`${API_HOST}/movies`)
-    .send({title: movieTitle, poster: moviePoster, overview: movieOverview})
+    .send({apiID : apiID, title: title, poster: poster, overview: overview})
     .catch(err => console.error(err))
   )
 

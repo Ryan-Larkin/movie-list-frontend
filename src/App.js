@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import './App.css';
 import MovieItem from './MovieItem';
+import SearchList from './modals/SearchList';
 
+import './App.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
@@ -26,13 +27,28 @@ class App extends Component {
     super();
 
     this.state = {
-      movies          : [],
-      randomizedIndex : null
+      movies          : [],   // movies in the DB to display
+      foundMovies     : [],   // movies found when searching a title
+      showSearchModal : null, // for letting the user pick which movie from search results
+      randomizedIndex : null  // used for showing a random movie
     }
   }
 
   componentDidMount() {
     this.fetchMovies();
+  }
+
+  toastAlert = (message, toastType) => {
+    switch(toastType) {
+      case 'success':
+        toast.success(<ToastMsg displayStr={message} />, toastOptions);
+        break;
+      case 'error':
+        toast.error(<ToastMsg displayStr={message} />, toastOptions);
+        break;
+      default:
+        break;
+    }
   }
 
   fetchMovies = () => {
@@ -66,44 +82,41 @@ class App extends Component {
     .then(response => response.json())
     .then(movieData => {
       if(movieData.results && movieData.results.length > 0) {
-        return {
-          title    : movieData.results[0].title,
-          poster   : movieData.results[0].poster_path,
-          overview : movieData.results[0].overview
-        }
+        return movieData.results.map(m => {
+          return {
+            apiID    : m.id,
+            title    : m.title,
+            poster   : m.poster_path,
+            overview : m.overview
+          }
+        });
+      }
+      else {
+        this.toastAlert(`${movieTitle} could not be found.`, 'error');
       }
     });
   }
+
+  // TODO: refactor code so that this function here isn't necessary
+  // can just do it all in findMovie once I find out how to call it with an argument
+  // down below in the render function
 
   addNewMovie = () => {
     let { newMovie: {value: newMovie} } = this.refs;
 
     if (newMovie) {
       this.findMovie(newMovie)
-      .then(movieInfo => {
-        if (movieInfo) {
-          api.addMovie(movieInfo)
-          .then(res => {
-            if (res.body.wasFound) {
-              toast.error(<ToastMsg displayStr={`${res.body.title} is already added.`} />, toastOptions);
-            }
-            else {
-              toast.success(<ToastMsg displayStr={`${movieInfo.title} was succesfully added.`} />, toastOptions);
-              this.fetchMovies();
-            }
+      .then(movieArray => {
+        if (movieArray && movieArray.length > 0) {
+          this.setState({
+            foundMovies     : movieArray,
+            showSearchModal : true
           });
-
-          this.refs.newMovie.value = "";
-
-
-        }
-        else {
-          toast.error(<ToastMsg displayStr={`${newMovie} could not be found.`} />, toastOptions);
         }
       });
     }
     else {
-      toast.error(<ToastMsg displayStr='Please enter a movie name.' />, toastOptions);
+      this.toastAlert('Please enter a movie.', 'error');
     }
   }
 
@@ -114,7 +127,7 @@ class App extends Component {
       });
     }
     else {
-      toast.error(<ToastMsg displayStr='There are no movies in your list.' />, toastOptions);
+      this.toastAlert('There are no movies in your list.', 'error');
     }
   }
 
@@ -127,31 +140,37 @@ class App extends Component {
     }
   }
 
+  showSearchModal = () => this.setState({ showSearchModal : true });
+
+  closeSearchModal = () => this.setState({showSearchModal : false})
+
   render() {
-    let { movies } = this.state;
+    let { movies, foundMovies } = this.state;
 
     return (
       <div className="App">
         <div className="App-header">
-          <h2>Movies</h2>
+          <h1>Movies</h1>
+
+          <div className="header-controls">
+            <div className="randomizing-btns">
+              <button onClick={this.getRandomMovie}>Get Random Movie</button>
+              <button onClick={this.showAll}>Show All Movies</button>
+            </div>
+
+            <div className="movie-input">
+              <input className="add-movie-input" type="text" ref="newMovie" onKeyUp={this.handleTyping} />
+              <button className="add-movie-button" onClick={this.addNewMovie}>
+                <i className="fa fa-search" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
         </div>
         <div className="App-intro">
 
-          <br />
-
-          <div className="movie-input">
-            <input type="text" ref="newMovie" onKeyUp={this.handleTyping} />
-            <button onClick={this.addNewMovie}>Add Movie</button>
-          </div>
-
-          <div className="randomizing-btns">
-            <button onClick={this.getRandomMovie}>Get Random Movie</button>
-            <button onClick={this.showAll}>Show All Movies</button>
-          </div>
-
           <ToastContainer />
 
-          <hr />
+          <br />
 
           <div className="movie-list">
             {
@@ -163,6 +182,7 @@ class App extends Component {
                   poster={movies[this.state.randomizedIndex].poster}
                   overview={movies[this.state.randomizedIndex].overview}
                   updateMovies={this.fetchMovies}
+                  toastAlert={this.toastAlert}
                 />
               : movies.map(m => (
                 <MovieItem
@@ -172,10 +192,27 @@ class App extends Component {
                   poster={m.poster}
                   overview={m.overview}
                   updateMovies={this.fetchMovies}
+                  toastAlert={this.toastAlert}
                 />
               ))
             }
           </div>
+          {
+            this.state.showSearchModal
+            ? <div className="backdrop">
+                {
+                  <SearchList
+                    searchList={foundMovies}
+                    updateMovies={this.fetchMovies}
+                    closeSearchModal={this.closeSearchModal}
+                    toastAlert={this.toastAlert}
+                  />
+                }
+              </div>
+            : null
+          }
+
+
         </div>
       </div>
     );
@@ -183,3 +220,73 @@ class App extends Component {
 }
 
 export default App;
+
+/*
+addNewMovie function, requires replacement with code found below as well
+
+// addNewMovie = () => {
+//   let { newMovie: {value: newMovie} } = this.refs;
+//
+//   if (newMovie) {
+//     this.findMovie(newMovie)
+//     .then(movieArray => {
+//       if (movieArray && movieArray.length > 0) {
+//         this.setState({
+//           foundMovies     : movieArray,
+//           showSearchModal : true
+//         });
+//       }
+//     });
+//   }
+// }
+*/
+
+/*
+find movie code
+
+// return fetch(url)
+// .then(response => response.json())
+// .then(movieData => {
+//   if(movieData.results && movieData.results.length > 0) {
+//     return {
+//       title    : movieData.results[0].title,
+//       poster   : movieData.results[0].poster_path,
+//       overview : movieData.results[0].overview
+//     }
+//   }
+// });
+
+*/
+
+
+/*
+add new movie code
+
+// if (newMovie) {
+//   this.findMovie(newMovie)
+//   .then(movieInfo => {
+//     if (movieInfo) {
+//       api.addMovie(movieInfo)
+//       .then(res => {
+//         if (res.body.wasFound) {
+//           toast.error(<ToastMsg displayStr={`${res.body.title} is already added.`} />, toastOptions);
+//         }
+//         else {
+//           toast.success(<ToastMsg displayStr={`${movieInfo.title} was succesfully added.`} />, toastOptions);
+//           this.fetchMovies();
+//         }
+//       });
+//
+//       this.refs.newMovie.value = "";
+//
+//
+//     }
+//     else {
+//       toast.error(<ToastMsg displayStr={`${newMovie} could not be found.`} />, toastOptions);
+//     }
+//   });
+// }
+// else {
+//   toast.error(<ToastMsg displayStr='Please enter a movie name.' />, toastOptions);
+// }
+*/

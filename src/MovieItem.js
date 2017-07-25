@@ -14,9 +14,7 @@ class MovieItem extends React.Component {
     }
   }
 
-  showModal = () => {
-    this.setState({showMovieModal : true});
-  }
+  showModal = () => this.setState({showMovieModal : true});
 
   closeModal = () => this.setState({showMovieModal : false});
 
@@ -24,9 +22,10 @@ class MovieItem extends React.Component {
 
     return (
       <div className="movie-item" onClick={this.showModal}>
-        {this.props.poster
+        {
+          this.props.poster
           ? <img className="poster-img" src={`${MOVIE_POSTER_154}${this.props.poster}`} alt="No poster found" />
-          : null
+          : <img className="poster-img" alt={this.props.title} />
         }
 
         {
@@ -39,6 +38,7 @@ class MovieItem extends React.Component {
                 overview={this.props.overview}
                 updateMovies={this.props.updateMovies}
                 closeModal={this.closeModal}
+                toastAlert={this.props.toastAlert}
               />
             </div>
           : null

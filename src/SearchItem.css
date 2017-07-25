@@ -1,0 +1,8 @@
+.search-item {
+  display:flex;
+  justify-content: center;
+  flex-wrap:wrap;
+  min-width:19%;
+  margin-bottom:15px;
+  padding-right:5px;
+}
